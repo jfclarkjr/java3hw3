@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 
 /**
  * InventoryApp is a class containing the main method for accessing an 

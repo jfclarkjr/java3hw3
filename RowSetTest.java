@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

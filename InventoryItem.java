@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 
 /**
  * InventoryItem is a class for storing an inventory object that can be 

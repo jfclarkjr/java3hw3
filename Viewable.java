@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 
 /**
  * The Viewable interface defines required methods to be implemented in a View object 

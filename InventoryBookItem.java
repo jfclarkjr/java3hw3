@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 
 /**
  * InventoryBookItem is a class for storing an inventory object of type Book

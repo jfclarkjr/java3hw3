@@ -1,4 +1,4 @@
-package org.jfclarkjr.java3hw2;
+package org.jfclarkjr.java3hw3;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
