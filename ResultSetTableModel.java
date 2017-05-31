@@ -35,6 +35,32 @@ public class ResultSetTableModel extends AbstractTableModel
 		
 	}
 	
+	public int getColumnCount() throws IllegalStateException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		try
+		{
+			return metaData.getColumnCount();
+		}
+		catch (SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
+		
+		// If exception occurs, return 0
+		return 0;
+	}
+	
+	public int getRowCount() throws IllegalStateException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		return numberOfRows;
+	}
+	
 	public Object getValueAt(int row, int column) throws IllegalStateException
 	{
 		if (!connectedToDatabase)
