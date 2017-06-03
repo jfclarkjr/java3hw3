@@ -2,6 +2,7 @@ package org.jfclarkjr.java3hw3;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.table.TableRowSorter;
+import javax.swing.table.TableModel;
 
 /**
  * InventoryView is class used for accessing an inventory system composed
@@ -59,6 +64,16 @@ public class InventoryView implements Viewable
 			"List Entire Catalog"};
 	private static final String[] mediaTypeList = {"", "CD", "DVD", "Book"};
 	
+	// JTable Testing
+	private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/mediainventory?useSSL=false";
+	private static final String USERNAME = "root";
+	private static final String PASSWORD = "root";
+	private static final String DEFAULT_QUERY = "SELECT * FROM mediaitems";
+	private static ResultSetTableModel tableModel;
+	private JTable resultTable;
+	private JScrollPane resultTablePane;
+	
+	
 	public InventoryView(InventoryController controller)
 	{
 		this.controller = controller;
@@ -97,6 +112,20 @@ public class InventoryView implements Viewable
 	 */
 	public void start()
 	{
+
+		try
+		{
+			// JTable Testing
+			tableModel = new ResultSetTableModel(DATABASE_URL, USERNAME, PASSWORD, DEFAULT_QUERY);
+			resultTable = new JTable(tableModel);
+			resultTablePane = new JScrollPane(resultTable);
+			
+		}
+		catch( SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
+		
 		// Initialize the JFrame 
 		frame = new JFrame("Media Inventory System");
 		frame.setLayout(new GridLayout(7,2));
@@ -346,6 +375,7 @@ public class InventoryView implements Viewable
 	 */
 	private void displayEntireInventoryList()
 	{
+		/*
 		frame.add(searchResultsScrollPane);
 		frame.add(exitButtonPanel);
 		
@@ -358,6 +388,42 @@ public class InventoryView implements Viewable
 			searchResultsTextArea.append( key + " " + props.getProperty((String) key) + "\n");
 		
 		System.out.println();
+		*/
+		
+		generateTable(DEFAULT_QUERY);
+		
+		
+	}
+	
+	private void generateTable(String Query)
+	{
+		try
+		{
+			tableModel.setQuery(Query);
+		}
+		catch( SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
+		
+		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		resultTable.setRowSorter(sorter);
+		
+		for (int i=0; i < tableModel.getColumnCount(); i++)
+		{
+			String name = resultTable.getColumnName(i);
+			if ( name.equalsIgnoreCase("mediatype"))
+				resultTable.getColumnModel().getColumn(i).setHeaderValue("Media Type");
+			else if (name.equalsIgnoreCase("artist"))
+				resultTable.getColumnModel().getColumn(i).setHeaderValue("Artist");
+			else if (name.equalsIgnoreCase("title"))
+				resultTable.getColumnModel().getColumn(i).setHeaderValue("Title");	
+		}
+		
+		
+		frame.setSize(700,500);
+		frame.add(resultTablePane);
+		frame.add(exitButtonPanel);
 	}
 	
 	

@@ -35,6 +35,46 @@ public class ResultSetTableModel extends AbstractTableModel
 		
 	}
 	
+	public String getColumnName(int column) throws IllegalStateException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		try
+		{
+			return metaData.getColumnName(column +1);
+		}
+		catch (SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
+		
+		// Return a null String if an error occurs
+		return "";
+	}
+	
+	public Class getColumnClass(int column) throws IllegalStateException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		// Determine the class type of the column
+		try
+		{
+			String className = metaData.getColumnClassName(column +1);
+			
+			// Return the class type
+			return Class.forName(className);
+		}
+		catch (Exception exception)
+		{
+			exception.printStackTrace();
+		}
+		
+		// Return type Object if error occurs
+		return Object.class;
+	}
+	
 	public int getColumnCount() throws IllegalStateException
 	{
 		if (!connectedToDatabase)
@@ -99,5 +139,26 @@ public class ResultSetTableModel extends AbstractTableModel
 		
 		// Update JTable
 		fireTableStructureChanged();
+	}
+	
+	public void disconnectFromDatabase()
+	{
+		if (!connectedToDatabase)
+		{
+			try
+			{
+				resultSet.close();
+				statement.close();
+				connection.close();
+			}
+			catch (SQLException sqlException)
+			{
+				sqlException.printStackTrace();
+			}
+			finally
+			{
+				connectedToDatabase = false;
+			}
+		}
 	}
 }
