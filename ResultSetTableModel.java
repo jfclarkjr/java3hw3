@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import javax.swing.table.AbstractTableModel;
 
 
@@ -16,6 +17,7 @@ public class ResultSetTableModel extends AbstractTableModel
 	private ResultSet resultSet;
 	private ResultSetMetaData metaData;
 	private int numberOfRows;
+	private PreparedStatement insertNewItem;
 	
 	private boolean connectedToDatabase = false;
 	
@@ -26,13 +28,21 @@ public class ResultSetTableModel extends AbstractTableModel
 		connection = DriverManager.getConnection(url, username, password);
 		
 		// Create statement
-		statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+		//ResultSet.CONCUR_READ_ONLY
 		
 		connectedToDatabase = true;
 		
 		// Execute the query
 		setQuery(query);
 		
+		// Specify the SQL Prepared Statements
+		insertNewItem = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
+				"(NULL, ?, ?, ?)");
+		/*
+		insertNewItem = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
+				"(ID, mediatype, title, artist) " + "VALUES (?, ?, ?, ?)");
+		*/
 	}
 	
 	public String getColumnName(int column) throws IllegalStateException
@@ -130,6 +140,7 @@ public class ResultSetTableModel extends AbstractTableModel
 		// Execute query
 		resultSet = statement.executeQuery(query);
 		
+		
 		// Get metadata
 		metaData = resultSet.getMetaData();
 		
@@ -140,6 +151,24 @@ public class ResultSetTableModel extends AbstractTableModel
 		// Update JTable
 		fireTableStructureChanged();
 	}
+	
+	public void execSQLManipulation(String sqlManipulation) throws SQLException, IllegalStateException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		statement.execute(sqlManipulation);
+	}
+	
+	public void createItem(String type, String title, String artist) throws SQLException
+	{
+		insertNewItem.setString(1, type);
+		insertNewItem.setString(2, title);
+		insertNewItem.setString(3, artist);
+		
+		insertNewItem.executeUpdate();
+	}
+	
 	
 	public void disconnectFromDatabase()
 	{

@@ -28,6 +28,7 @@ public class InventoryController
 	public void createItem(String type, String title, String artist)
 	{
 		model.createItem(type, title, artist);
+		
 	}
 	
 	/**

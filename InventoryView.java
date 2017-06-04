@@ -389,9 +389,38 @@ public class InventoryView implements Viewable
 		
 		System.out.println();
 		*/
+		try
+		{
+			tableModel.createItem("CD", "Wildflowers", "Tom Petty");
+		}
+		catch (SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
 		
-		generateTable(DEFAULT_QUERY);
+		String Query = "SELECT * FROM mediaitems";
 		
+		generateTable(Query);
+		
+		/*
+		String Query = "INSERT INTO mediaitems VALUES (NULL,'Book','Down Under','Bill Bryson')";
+		
+		try
+		{
+			tableModel.execSQLManipulation(Query);
+		}
+		catch (SQLException sqlException)
+		{
+			sqlException.printStackTrace();
+		}
+		*/
+		
+		/*
+		// Testing
+		String title = "Titanic";
+		Query = Query + " WHERE title = '" + title + "'";
+		System.out.println(Query);
+		*/
 		
 	}
 	
@@ -401,7 +430,7 @@ public class InventoryView implements Viewable
 		{
 			tableModel.setQuery(Query);
 		}
-		catch( SQLException sqlException)
+		catch (SQLException sqlException)
 		{
 			sqlException.printStackTrace();
 		}
