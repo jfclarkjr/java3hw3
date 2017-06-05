@@ -3,8 +3,6 @@ package org.jfclarkjr.java3hw3;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.Properties;
-import java.util.Set;
 import java.awt.event.ActionEvent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -12,12 +10,9 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
-import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowFilter;
 import javax.swing.table.TableRowSorter;
-import javax.swing.table.TableModel;
 
 /**
  * InventoryView is class used for accessing an inventory system composed
@@ -34,7 +29,6 @@ public class InventoryView implements Viewable
 {
 	private InventoryController controller;
 	private InventoryModel model;
-	private InventoryItem currentItem;
 	private JTextField titleTextField;
 	private JTextField artistTextField;
 	private JTextField inventoryNumberTextField;
@@ -51,8 +45,6 @@ public class InventoryView implements Viewable
 	private JPanel buttonPanel;
 	private JPanel exitButtonPanel;
 	private JPanel messagePanel;
-	private JTextArea searchResultsTextArea;
-	private JScrollPane searchResultsScrollPane;
 	private JLabel messagePanelLabel;
 	private String userChoice;
 	private String mediaType;
@@ -63,13 +55,6 @@ public class InventoryView implements Viewable
 	private static final String[] userChoiceList = {"", "Create", "Retrieve", "Update", "Delete",
 			"List Entire Catalog"};
 	private static final String[] mediaTypeList = {"", "CD", "DVD", "Book"};
-	
-	// JTable Testing
-	private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/mediainventory?useSSL=false";
-	private static final String USERNAME = "root";
-	private static final String PASSWORD = "root";
-	private static final String DEFAULT_QUERY = "SELECT * FROM mediaitems";
-	private static ResultSetTableModel tableModel;
 	private JTable resultTable;
 	private JScrollPane resultTablePane;
 	
@@ -77,7 +62,6 @@ public class InventoryView implements Viewable
 	public InventoryView(InventoryController controller)
 	{
 		this.controller = controller;
-		currentItem = new InventoryItem();
 	}
 	
 	/**
@@ -99,11 +83,7 @@ public class InventoryView implements Viewable
 	public void notifyOfModelStateChange(InventoryStateChange stateChange)
 	{
 		if (stateChange == InventoryStateChange.RETRIEVE)
-			displayItems();
-		else if (stateChange == InventoryStateChange.ITEM_NOT_FOUND)
-			searchResultsTextArea.append("Item not found!");
-		else
-			searchResultsTextArea.append("Undefined response, please try again.");
+			generateTable();
 	}
 	
 	/**
@@ -112,23 +92,14 @@ public class InventoryView implements Viewable
 	 */
 	public void start()
 	{
+		// JTable Testing
+		//tableModel = new ResultSetTableModel(DATABASE_URL, USERNAME, PASSWORD, DEFAULT_QUERY);
+		resultTable = new JTable(model);
+		resultTablePane = new JScrollPane(resultTable);
 
-		try
-		{
-			// JTable Testing
-			tableModel = new ResultSetTableModel(DATABASE_URL, USERNAME, PASSWORD, DEFAULT_QUERY);
-			resultTable = new JTable(tableModel);
-			resultTablePane = new JScrollPane(resultTable);
-			
-		}
-		catch( SQLException sqlException)
-		{
-			sqlException.printStackTrace();
-		}
-		
 		// Initialize the JFrame 
 		frame = new JFrame("Media Inventory System");
-		frame.setLayout(new GridLayout(7,2));
+		frame.setLayout(new GridLayout(3,2));
 		
 		// Create the JPanels
 		userChoiceComboPanel = new JPanel();
@@ -161,11 +132,6 @@ public class InventoryView implements Viewable
 		JLabel artistTextFieldLabel = new JLabel("Enter Artist: ");
 		JLabel inventoryNumberFieldLabel = new JLabel("Enter Inventory Number: ");
 		messagePanelLabel = new JLabel("");
-		
-		// Set up JTextArea
-		searchResultsTextArea = new JTextArea(5, 30);
-		searchResultsScrollPane = new JScrollPane(searchResultsTextArea);
-		searchResultsTextArea.setEditable(false);
 		
 		// Add the components to the JPanels
 		userChoiceComboPanel.add(userChoiceComboBoxLabel);
@@ -202,25 +168,53 @@ public class InventoryView implements Viewable
 
 						if ( userChoice.equals("Create"))
 						{
-							controller.createItem(mediaType, title, artist);
+							try
+							{
+								controller.createItem(mediaType, title, artist);
+							}
+							catch (SQLException sqlException)
+							{
+								sqlException.printStackTrace();
+							}
 							messagePanelLabel.setText("Item Created!");
 							frame.add(messagePanel);
 							refreshFrame();
 						}
 						else if ( userChoice.equals("Retrieve"))
 						{
-							controller.retrieveItemByTitle(title);
+							try
+							{
+								controller.retrieveItemByTitle(title);
+							}
+							catch (SQLException sqlException)
+							{
+								sqlException.printStackTrace();
+							}
 						}
 						else if ( userChoice.equals("Update"))
 						{
-							controller.updateItem(inventoryNumber, mediaType, title, artist);
+							try
+							{
+								controller.updateItem(inventoryNumber, mediaType, title, artist);
+							}
+							catch (SQLException sqlException)
+							{
+								sqlException.printStackTrace();
+							}
 							messagePanelLabel.setText("Item Updated!");
 							frame.add(messagePanel);
 							refreshFrame();
 						}
 						else if ( userChoice.equals("Delete"))
 						{
-							controller.deleteItem(inventoryNumber);
+							try
+							{
+								controller.deleteItem(inventoryNumber);
+							}
+							catch (SQLException sqlException)
+							{
+								sqlException.printStackTrace();
+							}
 							messagePanelLabel.setText("Item Deleted!");
 							frame.add(messagePanel);
 							refreshFrame();
@@ -318,7 +312,7 @@ public class InventoryView implements Viewable
 		// Add the initial ComboBox Panel and make the frame visible
 		frame.add(userChoiceComboPanel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400,500);
+		frame.setSize(700,500);
 		frame.setVisible(true);
 		
 	}
@@ -328,6 +322,7 @@ public class InventoryView implements Viewable
 	 */
 	private void displayCreateOptions()
 	{
+		frame.setLayout(new GridLayout(7,2));
 		frame.remove(userChoiceComboPanel);
 		frame.add(mediaTypeComboPanel);
 		frame.add(titleTextFieldPanel);
@@ -340,9 +335,9 @@ public class InventoryView implements Viewable
 	 */
 	private void displayRetrieveOptions()
 	{
+		frame.setLayout(new GridLayout(5,2));
 		frame.remove(userChoiceComboPanel);
 		frame.add(titleTextFieldPanel);
-		frame.add(searchResultsScrollPane);
 		frame.add(buttonPanel);
 	}
 	
@@ -351,6 +346,7 @@ public class InventoryView implements Viewable
 	 */
 	private void displayUpdateOptions()
 	{
+		frame.setLayout(new GridLayout(7,2));
 		frame.remove(userChoiceComboPanel);
 		frame.add(inventoryNumberFieldPanel);
 		frame.add(mediaTypeComboPanel);
@@ -364,6 +360,7 @@ public class InventoryView implements Viewable
 	 */
 	private void displayDeleteOptions()
 	{
+		frame.setLayout(new GridLayout(7,2));
 		frame.remove(userChoiceComboPanel);
 		frame.add(inventoryNumberFieldPanel);
 		frame.add(buttonPanel);
@@ -375,70 +372,25 @@ public class InventoryView implements Viewable
 	 */
 	private void displayEntireInventoryList()
 	{
-		/*
-		frame.add(searchResultsScrollPane);
-		frame.add(exitButtonPanel);
-		
-		Properties props;
-		props = model.getEntireTable();
-		
-		Set<Object> keys = props.keySet();
-		
-		for (Object key : keys)
-			searchResultsTextArea.append( key + " " + props.getProperty((String) key) + "\n");
-		
-		System.out.println();
-		*/
 		try
 		{
-			tableModel.createItem("CD", "Wildflowers", "Tom Petty");
+			model.getEntireTable();
 		}
 		catch (SQLException sqlException)
 		{
 			sqlException.printStackTrace();
 		}
 		
-		String Query = "SELECT * FROM mediaitems";
-		
-		generateTable(Query);
-		
-		/*
-		String Query = "INSERT INTO mediaitems VALUES (NULL,'Book','Down Under','Bill Bryson')";
-		
-		try
-		{
-			tableModel.execSQLManipulation(Query);
-		}
-		catch (SQLException sqlException)
-		{
-			sqlException.printStackTrace();
-		}
-		*/
-		
-		/*
-		// Testing
-		String title = "Titanic";
-		Query = Query + " WHERE title = '" + title + "'";
-		System.out.println(Query);
-		*/
+		generateTable();
 		
 	}
 	
-	private void generateTable(String Query)
+	private void generateTable()
 	{
-		try
-		{
-			tableModel.setQuery(Query);
-		}
-		catch (SQLException sqlException)
-		{
-			sqlException.printStackTrace();
-		}
-		
-		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		final TableRowSorter<InventoryModel> sorter = new TableRowSorter<InventoryModel>(model);
 		resultTable.setRowSorter(sorter);
 		
-		for (int i=0; i < tableModel.getColumnCount(); i++)
+		for (int i=0; i < model.getColumnCount(); i++)
 		{
 			String name = resultTable.getColumnName(i);
 			if ( name.equalsIgnoreCase("mediatype"))
@@ -448,28 +400,9 @@ public class InventoryView implements Viewable
 			else if (name.equalsIgnoreCase("title"))
 				resultTable.getColumnModel().getColumn(i).setHeaderValue("Title");	
 		}
-		
-		
-		frame.setSize(700,500);
+
 		frame.add(resultTablePane);
 		frame.add(exitButtonPanel);
-	}
-	
-	
-	/**
-	 * Method to display the Current Item which was retrieved by the retrieveItemByTitle 
-	 * method on the controller
-	 */
-	private void displayItems()
-	{
-		// Retrieve currentItem from the Model
-		currentItem = model.getCurrentItem();
-		
-		// Display the results in the JTextArea
-		searchResultsTextArea.append( "Inventory Number: " + currentItem.getinventoryNumber() + "\n");
-		searchResultsTextArea.append( "Media Type: " + currentItem.getType() + "\n");
-		searchResultsTextArea.append( "Title: " + currentItem.getTitle() + "\n");
-		searchResultsTextArea.append( "Artist: " + currentItem.getArtist() + "\n");
 	}
 	
 	/**
@@ -489,9 +422,9 @@ public class InventoryView implements Viewable
 		artistTextField.setText("");
 		frame.remove(buttonPanel);
 		frame.remove(exitButtonPanel);
-		frame.remove(searchResultsScrollPane);
-		searchResultsTextArea.setText("");
 		frame.remove(messagePanel);
+		frame.remove(resultTablePane);
+		frame.setLayout(new GridLayout(3,2));
 		frame.add(userChoiceComboPanel);
 		refreshFrame();
 	}

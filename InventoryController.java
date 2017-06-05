@@ -1,5 +1,7 @@
 package org.jfclarkjr.java3hw3;
 
+import java.sql.SQLException;
+
 /**
  * InventoryController is class used for managing an inventory system composed
  * of DVDs, CDs, and Books
@@ -25,7 +27,7 @@ public class InventoryController
 	 * @param title  Title of the CD/DVD/Book
 	 * @param artist  Musician/Director/Author depending on the media type
 	 */
-	public void createItem(String type, String title, String artist)
+	public void createItem(String type, String title, String artist) throws SQLException
 	{
 		model.createItem(type, title, artist);
 		
@@ -37,7 +39,7 @@ public class InventoryController
 	 * 
 	 * @param title Title of the CD/DVD/Book
 	 */
-	public void retrieveItemByTitle(String title)
+	public void retrieveItemByTitle(String title) throws SQLException
 	{
 		model.retrieveItemByTitle(title);
 	}
@@ -50,7 +52,7 @@ public class InventoryController
 	 * @param title The title of the media item
 	 * @param artist Depending on the media type, this will be the musician, author, or director of the item
 	 */
-	public void updateItem(String inventoryNumber,String type, String title, String artist)
+	public void updateItem(String inventoryNumber,String type, String title, String artist) throws SQLException
 	{
 		model.updateItem(inventoryNumber, type, title, artist);
 	}
@@ -60,7 +62,7 @@ public class InventoryController
 	 * 
 	 * @param inventoryNumber The unique inventory number for each item
 	 */
-	public void deleteItem(String inventoryNumber)
+	public void deleteItem(String inventoryNumber) throws SQLException
 	{
 		model.deleteItem(inventoryNumber);
 	}

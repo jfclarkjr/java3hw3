@@ -1,5 +1,10 @@
 package org.jfclarkjr.java3hw3;
 
+import java.sql.SQLException;
+
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
 /**
  * InventoryApp is a class containing the main method for accessing an 
  * inventory system composed of DVDs, CDs, and Books
@@ -10,9 +15,14 @@ package org.jfclarkjr.java3hw3;
  */
 public class InventoryApp
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws SQLException
 	{
-		InventoryModel model = new InventoryModel();
+		String DATABASE_URL = "jdbc:mysql://localhost:3306/mediainventory?useSSL=false";
+		String USERNAME = "root";
+		String PASSWORD = "root";
+		String DEFAULT_QUERY = "SELECT * FROM mediaitems";
+		
+		InventoryModel model = new InventoryModel(DATABASE_URL, USERNAME, PASSWORD, DEFAULT_QUERY);
 		InventoryController controller= new InventoryController(model);
 		InventoryView view = new InventoryView(controller);
 		

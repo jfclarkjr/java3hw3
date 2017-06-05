@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Properties;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import javax.swing.table.AbstractTableModel;
@@ -12,12 +13,16 @@ import javax.swing.table.AbstractTableModel;
 
 public class ResultSetTableModel extends AbstractTableModel
 {
+	private InventoryView view;
 	private final Connection connection;
 	private final Statement statement;
 	private ResultSet resultSet;
 	private ResultSetMetaData metaData;
 	private int numberOfRows;
-	private PreparedStatement insertNewItem;
+	private PreparedStatement insertNewItemStatement;
+	private PreparedStatement retrieveItemStatement;
+	private PreparedStatement updateItemStatement;
+	private PreparedStatement deleteItemStatement;
 	
 	private boolean connectedToDatabase = false;
 	
@@ -37,12 +42,26 @@ public class ResultSetTableModel extends AbstractTableModel
 		setQuery(query);
 		
 		// Specify the SQL Prepared Statements
-		insertNewItem = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
+		insertNewItemStatement = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
 				"(NULL, ?, ?, ?)");
-		/*
-		insertNewItem = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
-				"(ID, mediatype, title, artist) " + "VALUES (?, ?, ?, ?)");
-		*/
+		
+		retrieveItemStatement = connection.prepareStatement("SELECT * from mediaitems WHERE title = ?");
+		
+		updateItemStatement = connection.prepareStatement(
+				"UPDATE mediaitems SET mediatype = ?, title = ?, artist = ? WHERE ID = ?");
+		
+		deleteItemStatement = connection.prepareStatement("DELETE FROM mediaitems WHERE ID = ?");
+
+	}
+	
+	/**
+	 * This method will register the view object
+	 * 
+	 * @param view The inventory view object which provides the user interface
+	 */
+	public void setView(InventoryView view)
+	{
+		this.view=view;
 	}
 	
 	public String getColumnName(int column) throws IllegalStateException
@@ -162,11 +181,89 @@ public class ResultSetTableModel extends AbstractTableModel
 	
 	public void createItem(String type, String title, String artist) throws SQLException
 	{
-		insertNewItem.setString(1, type);
-		insertNewItem.setString(2, title);
-		insertNewItem.setString(3, artist);
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
 		
-		insertNewItem.executeUpdate();
+		insertNewItemStatement.setString(1, type);
+		insertNewItemStatement.setString(2, title);
+		insertNewItemStatement.setString(3, artist);
+		
+		insertNewItemStatement.executeUpdate();
+	}
+	
+	public void retrieveItemByTitle(String title) throws SQLException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		retrieveItemStatement.setString(1, title);
+		resultSet = retrieveItemStatement.executeQuery();
+		
+		// Refresh the JTable with results of the query
+		updateTable();
+
+	}
+	
+	/**
+	 * Update the JTable with the full list of inventory items
+	 * 
+	 */
+	public void getEntireTable() throws SQLException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		String query = "SELECT * from mediaitems";
+		
+		setQuery(query);
+		
+		// Refresh the JTable with results of the query
+		updateTable();
+	}
+	
+	/**
+	 * This method updates an inventory item in the Properties table
+	 * 
+	 * @param inventoryNumber The unique inventory number for each item
+	 * @param type The media type - CD, DVD, or Book
+	 * @param title The title of the media item
+	 * @param artist Depending on the media type, this will be the musician, author, or director of the item
+	 */
+	public void updateItem(String inventoryNumber,String type, String title, String artist) throws SQLException
+	{
+		if (!connectedToDatabase)
+			throw new IllegalStateException("Not connected to database!");
+		
+		updateItemStatement.setString(4, inventoryNumber);
+		updateItemStatement.setString(1, type);
+		updateItemStatement.setString(2, title);
+		updateItemStatement.setString(3, artist);
+		
+		updateItemStatement.executeUpdate();
+	}
+	
+	/**
+	 * Deletion of an inventory item in the Properties table
+	 * 
+	 * @param inventoryNumber The unique inventory number for each item
+	 */
+	public void deleteItem(String inventoryNumber) throws SQLException
+	{
+		deleteItemStatement.setString(1, inventoryNumber);
+		deleteItemStatement.executeUpdate();
+	}
+	
+	private void updateTable() throws SQLException
+	{
+		// Get metadata
+		metaData = resultSet.getMetaData();
+		
+		// Get the number of rows to display
+		resultSet.last();
+		numberOfRows = resultSet.getRow();
+		
+		// Update JTable
+		fireTableStructureChanged();
 	}
 	
 	
