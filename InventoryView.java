@@ -2,7 +2,6 @@ package org.jfclarkjr.java3hw3;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -168,53 +167,28 @@ public class InventoryView implements Viewable
 
 						if ( userChoice.equals("Create"))
 						{
-							try
-							{
-								controller.createItem(mediaType, title, artist);
-							}
-							catch (SQLException sqlException)
-							{
-								sqlException.printStackTrace();
-							}
+							controller.createItem(mediaType, title, artist);
 							messagePanelLabel.setText("Item Created!");
 							frame.add(messagePanel);
 							refreshFrame();
 						}
 						else if ( userChoice.equals("Retrieve"))
 						{
-							try
-							{
-								controller.retrieveItemByTitle(title);
-							}
-							catch (SQLException sqlException)
-							{
-								sqlException.printStackTrace();
-							}
+
+							controller.retrieveItemByTitle(title);
+
+
 						}
 						else if ( userChoice.equals("Update"))
 						{
-							try
-							{
-								controller.updateItem(inventoryNumber, mediaType, title, artist);
-							}
-							catch (SQLException sqlException)
-							{
-								sqlException.printStackTrace();
-							}
+							controller.updateItem(inventoryNumber, mediaType, title, artist);
 							messagePanelLabel.setText("Item Updated!");
 							frame.add(messagePanel);
 							refreshFrame();
 						}
 						else if ( userChoice.equals("Delete"))
 						{
-							try
-							{
-								controller.deleteItem(inventoryNumber);
-							}
-							catch (SQLException sqlException)
-							{
-								sqlException.printStackTrace();
-							}
+							controller.deleteItem(inventoryNumber);
 							messagePanelLabel.setText("Item Deleted!");
 							frame.add(messagePanel);
 							refreshFrame();
@@ -372,19 +346,14 @@ public class InventoryView implements Viewable
 	 */
 	private void displayEntireInventoryList()
 	{
-		try
-		{
-			model.getEntireTable();
-		}
-		catch (SQLException sqlException)
-		{
-			sqlException.printStackTrace();
-		}
-		
+		controller.getEntireTable();
 		generateTable();
-		
 	}
 	
+	/**
+	 * Method used to configure the JTable sorting and column characteristics
+	 * and adds the table pane to the JFrame
+	 */
 	private void generateTable()
 	{
 		final TableRowSorter<InventoryModel> sorter = new TableRowSorter<InventoryModel>(model);

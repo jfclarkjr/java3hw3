@@ -2,8 +2,6 @@ package org.jfclarkjr.java3hw3;
 
 import java.sql.SQLException;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 /**
  * InventoryApp is a class containing the main method for accessing an 

@@ -171,14 +171,16 @@ public class InventoryModel extends AbstractTableModel
 		fireTableStructureChanged();
 	}
 	
-	public void execSQLManipulation(String sqlManipulation) throws SQLException, IllegalStateException
-	{
-		if (!connectedToDatabase)
-			throw new IllegalStateException("Not connected to database!");
-		
-		statement.execute(sqlManipulation);
-	}
-	
+	/**
+	 * This method adds a new inventory item to the Properties table.
+	 * It steps through the existing inventory table until it finds an
+	 * unallocated inventory number.  The new item is then added using
+	 * the number found.
+	 * 
+	 * @param type  Media type
+	 * @param title  Title of the CD/DVD/Book
+	 * @param artist  Musician/Director/Author depending on the media type
+	 */
 	public void createItem(String type, String title, String artist) throws SQLException
 	{
 		if (!connectedToDatabase)
@@ -191,6 +193,12 @@ public class InventoryModel extends AbstractTableModel
 		insertNewItemStatement.executeUpdate();
 	}
 	
+	/**
+	 * This method retrieves an item from the Properties table
+	 * The lookup is performed by title only
+	 * 
+	 * @param title Title of the CD/DVD/Book
+	 */
 	public void retrieveItemByTitle(String title) throws SQLException
 	{
 		InventoryStateChange currentStateChange = null;
@@ -259,6 +267,11 @@ public class InventoryModel extends AbstractTableModel
 		deleteItemStatement.executeUpdate();
 	}
 	
+	/**
+	 * Method to refresh the JTable with results of a query
+	 * 
+	 * @throws SQLException
+	 */
 	private void updateTable() throws SQLException
 	{
 		// Get metadata

@@ -27,9 +27,16 @@ public class InventoryController
 	 * @param title  Title of the CD/DVD/Book
 	 * @param artist  Musician/Director/Author depending on the media type
 	 */
-	public void createItem(String type, String title, String artist) throws SQLException
+	public void createItem(String type, String title, String artist)
 	{
-		model.createItem(type, title, artist);
+		try
+		{
+			model.createItem(type, title, artist);
+		}
+		catch (SQLException exception)
+		{
+			exception.printStackTrace();
+		}
 		
 	}
 	
@@ -39,9 +46,16 @@ public class InventoryController
 	 * 
 	 * @param title Title of the CD/DVD/Book
 	 */
-	public void retrieveItemByTitle(String title) throws SQLException
+	public void retrieveItemByTitle(String title)
 	{
-		model.retrieveItemByTitle(title);
+		try
+		{
+			model.retrieveItemByTitle(title);
+		}
+		catch (SQLException exception)
+		{
+			exception.printStackTrace();
+		}
 	}
 	
 	/**
@@ -52,9 +66,16 @@ public class InventoryController
 	 * @param title The title of the media item
 	 * @param artist Depending on the media type, this will be the musician, author, or director of the item
 	 */
-	public void updateItem(String inventoryNumber,String type, String title, String artist) throws SQLException
+	public void updateItem(String inventoryNumber,String type, String title, String artist)
 	{
-		model.updateItem(inventoryNumber, type, title, artist);
+		try
+		{
+			model.updateItem(inventoryNumber, type, title, artist);
+		}
+		catch (SQLException exception)
+		{
+			exception.printStackTrace();
+		}
 	}
 	
 	/**
@@ -62,9 +83,31 @@ public class InventoryController
 	 * 
 	 * @param inventoryNumber The unique inventory number for each item
 	 */
-	public void deleteItem(String inventoryNumber) throws SQLException
+	public void deleteItem(String inventoryNumber)
 	{
-		model.deleteItem(inventoryNumber);
+		try
+		{
+			model.deleteItem(inventoryNumber);
+		}
+		catch (SQLException exception)
+		{
+			exception.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Display the entire inventory table
+	 */
+	public void getEntireTable()
+	{
+		try
+		{
+			model.getEntireTable();
+		}
+		catch (SQLException exception)
+		{
+			exception.printStackTrace();
+		}
 	}
 
 }
