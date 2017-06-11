@@ -15,6 +15,8 @@ public class InventoryApp
 {
 	public static void main(String[] args) throws SQLException
 	{
+		// Specify String variables used to connect to a MySQL database running
+		// on the local machine
 		String DATABASE_URL = "jdbc:mysql://localhost:3306/mediainventory?useSSL=false";
 		String USERNAME = "root";
 		String PASSWORD = "root";

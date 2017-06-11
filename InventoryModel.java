@@ -5,7 +5,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.Properties;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import javax.swing.table.AbstractTableModel;
@@ -19,7 +18,7 @@ public class InventoryModel extends AbstractTableModel
 	private ResultSet resultSet;
 	private ResultSetMetaData metaData;
 	private int numberOfRows;
-	private PreparedStatement insertNewItemStatement;
+	private PreparedStatement createItemStatement;
 	private PreparedStatement retrieveItemStatement;
 	private PreparedStatement updateItemStatement;
 	private PreparedStatement deleteItemStatement;
@@ -34,15 +33,14 @@ public class InventoryModel extends AbstractTableModel
 		
 		// Create statement
 		statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		//ResultSet.CONCUR_READ_ONLY
 		
 		connectedToDatabase = true;
 		
 		// Execute the query
 		setQuery(query);
 		
-		// Specify the SQL Prepared Statements
-		insertNewItemStatement = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
+		// Specify the SQL Prepared Statements for CRUD operations on the database
+		createItemStatement = connection.prepareStatement("INSERT INTO mediaitems VALUES " + 
 				"(NULL, ?, ?, ?)");
 		
 		retrieveItemStatement = connection.prepareStatement("SELECT * from mediaitems WHERE title = ?");
@@ -81,7 +79,7 @@ public class InventoryModel extends AbstractTableModel
 		// Return a null String if an error occurs
 		return "";
 	}
-	
+
 	public Class getColumnClass(int column) throws IllegalStateException
 	{
 		if (!connectedToDatabase)
@@ -151,6 +149,13 @@ public class InventoryModel extends AbstractTableModel
 		
 	}
 	
+	/**
+	 * A method to execute a query against the database
+	 * 
+	 * @param query
+	 * @throws SQLException
+	 * @throws IllegalStateException
+	 */
 	public void setQuery(String query) throws SQLException, IllegalStateException
 	{
 		if (!connectedToDatabase)
@@ -172,32 +177,31 @@ public class InventoryModel extends AbstractTableModel
 	}
 	
 	/**
-	 * This method adds a new inventory item to the Properties table.
-	 * It steps through the existing inventory table until it finds an
-	 * unallocated inventory number.  The new item is then added using
-	 * the number found.
+	 * This method adds a new inventory item to the database.
 	 * 
 	 * @param type  Media type
 	 * @param title  Title of the CD/DVD/Book
 	 * @param artist  Musician/Director/Author depending on the media type
+	 * @throws SQLException
 	 */
 	public void createItem(String type, String title, String artist) throws SQLException
 	{
 		if (!connectedToDatabase)
 			throw new IllegalStateException("Not connected to database!");
 		
-		insertNewItemStatement.setString(1, type);
-		insertNewItemStatement.setString(2, title);
-		insertNewItemStatement.setString(3, artist);
+		createItemStatement.setString(1, type);
+		createItemStatement.setString(2, title);
+		createItemStatement.setString(3, artist);
 		
-		insertNewItemStatement.executeUpdate();
+		createItemStatement.executeUpdate();
 	}
 	
 	/**
-	 * This method retrieves an item from the Properties table
+	 * This method retrieves an item from the database
 	 * The lookup is performed by title only
 	 * 
 	 * @param title Title of the CD/DVD/Book
+	 * @throws SQLException
 	 */
 	public void retrieveItemByTitle(String title) throws SQLException
 	{
@@ -221,6 +225,7 @@ public class InventoryModel extends AbstractTableModel
 	/**
 	 * Update the JTable with the full list of inventory items
 	 * 
+	 * @throws SQLException
 	 */
 	public void getEntireTable() throws SQLException
 	{
@@ -236,12 +241,13 @@ public class InventoryModel extends AbstractTableModel
 	}
 	
 	/**
-	 * This method updates an inventory item in the Properties table
+	 * This method updates an inventory item in the database
 	 * 
 	 * @param inventoryNumber The unique inventory number for each item
 	 * @param type The media type - CD, DVD, or Book
 	 * @param title The title of the media item
 	 * @param artist Depending on the media type, this will be the musician, author, or director of the item
+	 * @throws SQLException
 	 */
 	public void updateItem(String inventoryNumber,String type, String title, String artist) throws SQLException
 	{
@@ -257,9 +263,10 @@ public class InventoryModel extends AbstractTableModel
 	}
 	
 	/**
-	 * Deletion of an inventory item in the Properties table
+	 * Deletion of an inventory item in the database
 	 * 
 	 * @param inventoryNumber The unique inventory number for each item
+	 * @throws SQLException
 	 */
 	public void deleteItem(String inventoryNumber) throws SQLException
 	{
@@ -285,7 +292,9 @@ public class InventoryModel extends AbstractTableModel
 		fireTableStructureChanged();
 	}
 	
-	
+	/**
+	 * Method to close all connections to the database
+	 */
 	public void disconnectFromDatabase()
 	{
 		if (!connectedToDatabase)

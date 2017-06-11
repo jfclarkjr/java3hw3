@@ -17,8 +17,9 @@ import javax.swing.table.TableRowSorter;
  * InventoryView is class used for accessing an inventory system composed
  * of DVDs, CDs, and Books.
  * <p>
- * This version is for Java 3, Homework #2.  It uses Java Swing components
- * to display the user interface.
+ * This version is for Java 3, Homework #3.  It uses Java Swing components
+ * to display the user interface.  A JTable was added with this version
+ * to display output from MySQL queries.
  * 
  * @author John Clark
  * @since 1.8
@@ -91,8 +92,7 @@ public class InventoryView implements Viewable
 	 */
 	public void start()
 	{
-		// JTable Testing
-		//tableModel = new ResultSetTableModel(DATABASE_URL, USERNAME, PASSWORD, DEFAULT_QUERY);
+		// Initialize JTable components
 		resultTable = new JTable(model);
 		resultTablePane = new JScrollPane(resultTable);
 

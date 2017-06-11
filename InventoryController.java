@@ -4,7 +4,8 @@ import java.sql.SQLException;
 
 /**
  * InventoryController is class used for managing an inventory system composed
- * of DVDs, CDs, and Books
+ * of DVDs, CDs, and Books.  Updated in this version to include try/catch blocks
+ * for SQL Exceptions.
  * 
  * @author John Clark
  * @since 1.8
